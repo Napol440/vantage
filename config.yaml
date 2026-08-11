@@ -1,0 +1,58 @@
+# =============================================================================
+# vantage - Valorant esports data-collection pipeline
+# Configuration for the VLR.gg scraper (Component 1).
+# Rib.gg (Component 2) is a config-gated best-effort supplement, added later.
+# =============================================================================
+
+http:
+  base_url: "https://www.vlr.gg"
+  # Minimum seconds to wait between requests. Keep >= 1.0 to stay polite.
+  rate_limit_seconds: 1.0
+  timeout_seconds: 30
+  user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36"
+  # Retry with exponential backoff on connection errors / 5xx / 429.
+  retries: 3
+  backoff_base_seconds: 1.0
+  backoff_factor: 2.0
+  retry_status_codes: [429, 500, 502, 503, 504]
+
+paths:
+  # Base output directory; sqlite_path and json_dir are resolved relative to it
+  # unless they are absolute paths.
+  data_dir: "data"
+  sqlite_path: "data/vantage.db"
+  json_dir: "data/json"
+  logs_dir: "logs"
+
+logging:
+  level: "INFO"
+  file: "logs/vantage.log"
+  # Set to false to only log to console.
+  to_file: true
+
+# Default collection targets. Any value can be overridden on the CLI.
+targets:
+  team: null        # e.g. "karmine-corp" or a VLR team id
+  event: null       # e.g. 2976 (VCT 2026: EMEA Stage 2) or a slug
+  date_from: null   # YYYY-MM-DD
+  date_to: null     # YYYY-MM-DD
+
+scraper:
+  # Parse player Performance-tab data (multikills, clutches, operator kills).
+  # Lower-tier events may not have this tab; it is skipped gracefully either way.
+  include_performance: true
+  # Parse the Economy tab (buy type + bank after buy per round per team).
+  include_economy: true
+  # Fetch rosters for the two teams of every scraped match.
+  include_rosters: true
+  # Maximum matches to scrape in one run (0 = unlimited).
+  limit: 0
+
+rib:
+  # Component 2 (Rib.gg caller) - not implemented yet. Keep disabled.
+  enabled: false
+  base_url: "https://be-prod.rib.gg/v1"
+  rate_limit_seconds: 2.0
+  retries: 2
+  backoff_base_seconds: 1.0
+  backoff_factor: 2.0
