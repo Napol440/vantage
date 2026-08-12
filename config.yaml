@@ -49,10 +49,18 @@ scraper:
   limit: 0
 
 rib:
-  # Component 2 (Rib.gg caller) - not implemented yet. Keep disabled.
+  # Component 2 (Rib.gg caller). Rib.gg has no official public API; these are
+  # the community-documented "classic" endpoints. The backend host
+  # (be-prod.rib.gg) is frequently unreachable - keep enabled=false unless you
+  # have a working host, and pass it via base_url. See docs/RIB_REDISCOVERY.md.
   enabled: false
   base_url: "https://be-prod.rib.gg/v1"
   rate_limit_seconds: 2.0
   retries: 2
   backoff_base_seconds: 1.0
   backoff_factor: 2.0
+  # Collection targets (overridable on the CLI).
+  event_id: null   # e.g. 1866 - fetch completed series for this event
+  team_id: null    # (unused by classic endpoints; reserved)
+  take: 50         # page size for the series listing
+  fetch_details: true  # also call matches/{id}/details for per-round economy

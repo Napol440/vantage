@@ -48,6 +48,15 @@ def build_parser() -> argparse.ArgumentParser:
                    help="Skip fetching team rosters.")
     p.add_argument("--event-info", dest="event_info", default=None,
                    help="Also collect standings/brackets for this event id/slug.")
+    rib = p.add_argument_group("rib.gg (Component 2)")
+    rib.add_argument("--rib", action="store_true",
+                     help="Also collect series from rib.gg (requires an event id).")
+    rib.add_argument("--rib-event", dest="rib_event", type=int, default=None,
+                     help="rib.gg event id to collect series for (overrides rib.event_id).")
+    rib.add_argument("--rib-take", dest="rib_take", type=int, default=None,
+                     help="Max series to fetch per rib.gg page (default 50).")
+    rib.add_argument("--no-rib-details", dest="no_rib_details", action="store_true",
+                     help="Skip per-map match/details economy calls on rib.gg.")
     return p
 
 
@@ -70,6 +79,14 @@ def _apply_overrides(cfg: Config, args: argparse.Namespace) -> None:
         cfg.scraper.include_performance = False
     if args.no_rosters:
         cfg.scraper.include_rosters = False
+    if args.rib:
+        cfg.rib.enabled = True
+    if args.rib_event is not None:
+        cfg.rib.event_id = args.rib_event
+    if args.rib_take is not None:
+        cfg.rib.take = args.rib_take
+    if args.no_rib_details:
+        cfg.rib.fetch_details = False
 
 
 def main(argv: Optional[List[str]] = None) -> int:
@@ -78,30 +95,43 @@ def main(argv: Optional[List[str]] = None) -> int:
     _apply_overrides(cfg, args)
     setup_logging(cfg)
 
-    if not any([cfg.targets.team, cfg.targets.event, cfg.targets.date_from, cfg.targets.date_to]):
+    has_vlr_target = any([cfg.targets.team, cfg.targets.event,
+                          cfg.targets.date_from, cfg.targets.date_to])
+    if not has_vlr_target and not cfg.rib.enabled:
         build_parser().error(
-            "No target set. Use --team, --event, or --date-from/--date-to."
+            "No target set. Use --team, --event, --date-from/--date-to, or --rib."
         )
 
     pipeline = Pipeline(cfg)
+    summary = None
     try:
         if args.event_info:
             ev = pipeline.collect_event_metadata(args.event_info)
             log.info("Event metadata collected: %s", ev.name if ev else "?")
-        summary = pipeline.run()
+        if has_vlr_target:
+            summary = pipeline.run()
+        if cfg.rib.enabled:
+            rib_summary = pipeline.collect_rib()
+            if rib_summary is not None and (rib_summary.scraped or rib_summary.failed):
+                log.info(
+                    "rib.gg run: %d discovered, %d stored, %d duplicate-skipped, %d failed.",
+                    rib_summary.discovered, rib_summary.scraped,
+                    rib_summary.skipped_duplicate, len(rib_summary.failed),
+                )
     finally:
         pipeline.close()
 
-    log.info(
-        "Run complete: %d discovered, %d stored, %d duplicate-skipped, "
-        "%d failed, %d no-data.",
-        summary.discovered, summary.scraped, summary.skipped_duplicate,
-        len(summary.failed), len(summary.no_data),
-    )
-    if summary.failed:
-        log.warning("Failed matches: %s", ", ".join(summary.failed))
-    if summary.no_data:
-        log.warning("Matches without map data: %s", ", ".join(map(str, summary.no_data)))
+    if summary is not None:
+        log.info(
+            "Run complete: %d discovered, %d stored, %d duplicate-skipped, "
+            "%d failed, %d no-data.",
+            summary.discovered, summary.scraped, summary.skipped_duplicate,
+            len(summary.failed), len(summary.no_data),
+        )
+        if summary.failed:
+            log.warning("Failed matches: %s", ", ".join(summary.failed))
+        if summary.no_data:
+            log.warning("Matches without map data: %s", ", ".join(map(str, summary.no_data)))
     return 0
 
 

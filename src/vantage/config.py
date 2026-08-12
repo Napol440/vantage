@@ -67,6 +67,10 @@ class RibConfig:
     retries: int = 2
     backoff_base_seconds: float = 1.0
     backoff_factor: float = 2.0
+    event_id: Optional[int] = None  # fetch series for this event
+    team_id: Optional[int] = None   # fetch recent series for this team
+    take: int = 50                  # page size for series/events
+    fetch_details: bool = True      # also call matches/{id}/details (economy rounds)
 
 
 @dataclass

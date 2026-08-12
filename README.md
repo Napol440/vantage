@@ -1,12 +1,15 @@
 # vantage
 
-A Python pipeline for collecting Valorant esports match data. Component 1 (this
-repo, in working state) scrapes completed matches from [VLR.gg](https://www.vlr.gg);
-a later Component 2 will pull supplementary data from the Rib.gg API.
+A Python pipeline for collecting Valorant esports match data. Two sources:
 
-Output is written to a single SQLite database and one JSON file per match, using
-a unified schema (`src/vantage/models.py`) that is source-agnostic so records
-from VLR.gg and Rib.gg join cleanly.
+- **VLR.gg scraper** (Component 1, complete): scrapes completed matches, rosters,
+  and event standings/brackets from [VLR.gg](https://www.vlr.gg).
+- **Rib.gg caller** (Component 2): pulls series/match data from the Rib.gg API.
+
+Both write to one SQLite database and one JSON file per match, using a unified
+schema (`src/vantage/models.py`) that is source-agnostic so records from VLR.gg
+and Rib.gg join cleanly — including via `matches.vlr_id`, which Rib.gg series
+carry as a cross-reference to the VLR match id.
 
 ## What gets collected
 
@@ -49,6 +52,21 @@ All targets are mutually exclusive; `--limit` caps the number of matches scraped
 per run. Add `--no-economy`, `--no-performance`, or `--no-rosters` to skip tabs.
 `--event-info <event>` additionally collects standings and brackets.
 
+### Rib.gg (best-effort)
+
+Rib.gg has no official public API; the implemented endpoints are the
+community-documented classic ones, and the backend host is frequently
+unreachable. Enable it only when you have a working host (see
+`docs/RIB_REDISCOVERY.md`):
+
+```powershell
+python run.py --rib --rib-event 1866 --no-rosters
+python run.py --rib --rib-event 1866 --no-rib-details   # skip per-map economy calls
+```
+
+`--rib-event` overrides `rib.event_id` in `config.yaml`. Rib failures are logged
+and never affect the VLR pipeline.
+
 Configuration lives in `config.yaml` (rate limit, retries, output paths, target
 defaults). Paths in config are resolved relative to the config file.
 
@@ -77,5 +95,8 @@ VLR match.
   low-tier/amateur games); those sections are skipped gracefully and logged.
 - The operator-kill matrix on the Performance tab lists one team per matrix, so
   `operator_kills` may be `null` for one of the two teams.
-- The Rib.gg component is not yet implemented; the `rib` config block is a
-  placeholder and `enabled` defaults to `false`.
+- The Rib.gg component is best-effort: no official API, `be-prod.rib.gg` is often
+  unreachable, and economy data there is per-player (the parser aggregates it
+  per team). Keep `rib.enabled` off unless you have a working host.
+- Rib.gg series report economy per player, so its per-round `TeamEconomy` rows
+  are approximations (summed credits/costs).

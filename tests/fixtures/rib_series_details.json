@@ -1,0 +1,36 @@
+{
+  "data": {
+    "id": 79018,
+    "map_id": 3,
+    "economies": [
+      { "player_id": 2716, "player_name": "yay", "team_id": 388,
+        "economy_data": [
+          { "round": 1, "cost": 2500, "credits": 800 },
+          { "round": 2, "cost": 2900, "credits": 3700 },
+          { "round": 3, "cost": 5000, "credits": 7000 }
+        ] },
+      { "player_id": 2800, "player_name": "crashies", "team_id": 388,
+        "economy_data": [
+          { "round": 1, "cost": 2500, "credits": 800 },
+          { "round": 2, "cost": 2900, "credits": 3700 },
+          { "round": 3, "cost": 5000, "credits": 7000 }
+        ] },
+      { "player_id": 3001, "player_name": "aspas", "team_id": 128,
+        "economy_data": [
+          { "round": 1, "cost": 2500, "credits": 800 },
+          { "round": 2, "cost": 2900, "credits": 3700 },
+          { "round": 3, "cost": 5000, "credits": 7000 }
+        ] },
+      { "player_id": 3002, "player_name": "saadhak", "team_id": 128,
+        "economy_data": [
+          { "round": 1, "cost": 2500, "credits": 800 },
+          { "round": 2, "cost": 2900, "credits": 3700 },
+          { "round": 3, "cost": 5000, "credits": 7000 }
+        ] }
+    ],
+    "events": [
+      { "round_num": 1, "events": [{ "id": 1, "kills": [{}, {}] }] }
+    ],
+    "locations": []
+  }
+}

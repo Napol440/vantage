@@ -36,6 +36,88 @@ class Pipeline:
         self.fetcher: VLRFetcher = self.scraper.fetcher
         self._roster_cache: set = set()
 
+    # -- rib.gg -----------------------------------------------------------------
+
+    def collect_rib(self) -> RunSummary:
+        """Fetch series from rib.gg and store them (best-effort, config-gated).
+
+        Rib.gg has no official API and its backend host is frequently
+        unreachable; any failure here is logged and never crashes the VLR run.
+        """
+        summary = RunSummary()
+        if not self.cfg.rib.enabled:
+            log.info("rib.gg collection disabled (rib.enabled=false).")
+            return summary
+
+        from .sources.rib.client import RibClient
+        from .sources.rib.parser import merge_match_details, series_to_match
+
+        event_id = self.cfg.rib.event_id or self._numeric_target(self.cfg.targets.event)
+        if event_id is None:
+            log.warning("rib.gg enabled but no event id set (rib.event_id or --event).")
+            return summary
+
+        client = RibClient(self.cfg)
+        try:
+            series = client.series_for_event(event_id, take=self.cfg.rib.take, completed=True)
+        except Exception as exc:
+            log.error("rib.gg unreachable or failed for event %s: %s", event_id, exc)
+            client.close()
+            return summary
+
+        ids = []
+        for s in series if isinstance(series, list) else []:
+            sid = s.get("id") if isinstance(s, dict) else None
+            if sid is not None:
+                ids.append(int(sid))
+        summary.discovered = len(ids)
+        log.info("rib.gg: %d completed series for event %s.", len(ids), event_id)
+
+        for sid in ids:
+            self._rib_series(sid, client, series_to_match, merge_match_details, summary)
+        client.close()
+        return summary
+
+    def _rib_series(
+        self,
+        series_id: int,
+        client,
+        series_to_match,
+        merge_match_details,
+        summary: RunSummary,
+    ) -> None:
+        if not self.cfg.scraper.refresh and self.repo.match_exists(series_id, source="rib"):
+            summary.skipped_duplicate += 1
+            return
+        try:
+            data = client.series(series_id)
+        except Exception as exc:
+            summary.failed.append(str(series_id))
+            log.error("rib.gg series %s failed: %s", series_id, exc)
+            return
+
+        match = series_to_match(data)
+        if self.cfg.rib.fetch_details:
+            for mp in match.maps:
+                if mp.map_id is None:
+                    continue
+                try:
+                    details = client.match_details(mp.map_id)
+                    merge_match_details(match, details)
+                except Exception:
+                    log.warning("rib.gg details for map %s unavailable; skipping.", mp.map_id)
+
+        self.repo.save_match(match)
+        out = self.repo.dump_match_json(match, self.cfg.paths.json_dir)
+        summary.scraped += 1
+        log.info("rib.gg: stored series %s (%d map(s), vlr_id=%s) -> %s",
+                 series_id, len(match.maps), match.vlr_id, out)
+
+    def _numeric_target(self, term: Optional[str]) -> Optional[int]:
+        if not term or not str(term).strip().isdigit():
+            return None
+        return int(term.strip())
+
     def run(self) -> RunSummary:
         summary = RunSummary()
         target_ids = self._discover_matches()

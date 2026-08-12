@@ -1,0 +1,15 @@
+{
+  "meta": { "total": 1, "start": 0, "results": 1 },
+  "data": [
+    {
+      "id": 1866,
+      "name": "VALORANT Champions 2022 - Playoffs",
+      "region": "International",
+      "start_date": "2022-08-31",
+      "end_date": "2022-09-18",
+      "prize_pool": "$1,000,000",
+      "slug": "valorant-champions-2022-playoffs",
+      "series_count": 20
+    }
+  ]
+}

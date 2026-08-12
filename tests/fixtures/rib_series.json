@@ -1,0 +1,51 @@
+{
+  "id": 35225,
+  "event_id": 1866,
+  "event_name": "VALORANT Champions 2022 - Playoffs",
+  "event_slug": "valorant-champions-2022-playoffs",
+  "stage": "Playoffs",
+  "start_date": "2022-09-11T18:00:00",
+  "best_of": 3,
+  "completed": true,
+  "live": false,
+  "vlr_id": 143760,
+  "team1id": 388,
+  "team2id": 128,
+  "team1": { "id": 388, "name": "OpTic Gaming", "region": "North America" },
+  "team2": { "id": 128, "name": "LOUD", "region": "Brazil" },
+  "matches": [
+    {
+      "id": 79018,
+      "map_id": 3,
+      "map_name": "Bind",
+      "team1_score": 13,
+      "team2_score": 11,
+      "winner_id": 388,
+      "player_stats": [
+        { "player_id": 2716, "player_name": "yay", "team_id": 388, "agent_id": 12,
+          "kills": 24, "deaths": 16, "assists": 5, "acs": 296, "adr": 171.2,
+          "rating": 1.34, "hs": 32.1, "fk": 6, "fd": 3, "2k": 4, "3k": 2,
+          "1v1": 2 },
+        { "player_id": 3001, "player_name": "aspas", "team_id": 128, "agent_id": 12,
+          "kills": 20, "deaths": 19, "assists": 4, "acs": 242, "adr": 150.3,
+          "rating": 1.08, "hs": 28.0, "fk": 3, "fd": 4, "2k": 3, "3k": 1 }
+      ]
+    },
+    {
+      "id": 79019,
+      "map_id": 10,
+      "map_name": "Pearl",
+      "team1_score": 10,
+      "team2_score": 13,
+      "winner_id": 128,
+      "player_stats": [
+        { "player_id": 2716, "player_name": "yay", "team_id": 388, "agent_id": 6,
+          "kills": 15, "deaths": 18, "assists": 2, "acs": 198, "adr": 120.0,
+          "rating": 0.92, "hs": 24.4, "fk": 2, "fd": 5 },
+        { "player_id": 3001, "player_name": "aspas", "team_id": 128, "agent_id": 2,
+          "kills": 22, "deaths": 13, "assists": 6, "acs": 255, "adr": 160.1,
+          "rating": 1.25, "hs": 30.2, "fk": 5, "fd": 2, "2k": 3, "3k": 3, "1v2": 1 }
+      ]
+    }
+  ]
+}

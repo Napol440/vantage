@@ -209,6 +209,7 @@ class Match:
     teams: List[Team] = field(default_factory=list)  # rosters if fetched
     url: Optional[str] = None
     source: str = "vlr"
+    vlr_id: Optional[int] = None  # VLR match id (rib series carry this cross-ref)
 
     def to_dict(self) -> Dict[str, Any]:
         return _to_dict(self)

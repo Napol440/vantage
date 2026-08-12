@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS matches (
     team1_name TEXT, team2_name TEXT,
     team1_score INTEGER, team2_score INTEGER,
     winner_team_id INTEGER,
-    veto_text TEXT, url TEXT,
+    veto_text TEXT, url TEXT, vlr_id INTEGER,
     PRIMARY KEY (source, match_id)
 );
 
@@ -121,7 +121,14 @@ class Repository:
         self.conn = sqlite3.connect(self.db_path)
         self.conn.row_factory = sqlite3.Row
         self.conn.executescript(_SCHEMA)
+        self._migrate()
         self.conn.commit()
+
+    def _migrate(self) -> None:
+        """Add columns introduced after a DB was first created."""
+        cols = {r["name"] for r in self.conn.execute("PRAGMA table_info(matches)")}
+        if "vlr_id" not in cols:
+            self.conn.execute("ALTER TABLE matches ADD COLUMN vlr_id INTEGER")
 
     # -- query helpers ------------------------------------------------------
 
@@ -151,8 +158,8 @@ class Repository:
                 """INSERT OR REPLACE INTO matches
                    (source, match_id, event_id, event_name, stage, date, best_of,
                     team1_id, team2_id, team1_name, team2_name,
-                    team1_score, team2_score, winner_team_id, veto_text, url)
-                   VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                    team1_score, team2_score, winner_team_id, veto_text, url, vlr_id)
+                   VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
                 (
                     source, mid, match.event_id, match.event_name, match.stage,
                     match.date.isoformat() if match.date else None,
@@ -160,7 +167,7 @@ class Repository:
                     match.team1_id, match.team2_id,
                     match.team1_name, match.team2_name,
                     match.team1_score, match.team2_score,
-                    match.winner_team_id, match.veto_text, match.url,
+                    match.winner_team_id, match.veto_text, match.url, match.vlr_id,
                 ),
             )
 
@@ -307,7 +314,8 @@ class Repository:
     def dump_match_json(self, match: Match, json_dir: str | Path) -> Path:
         json_dir = Path(json_dir)
         json_dir.mkdir(parents=True, exist_ok=True)
-        out = json_dir / f"{match.match_id}.json"
+        prefix = "" if match.source == "vlr" else f"{match.source}_"
+        out = json_dir / f"{prefix}{match.match_id}.json"
         with open(out, "w", encoding="utf-8") as fh:
             json.dump(match.to_dict(), fh, indent=2, ensure_ascii=False)
         return out
