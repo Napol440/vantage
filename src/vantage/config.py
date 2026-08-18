@@ -145,3 +145,57 @@ def _resolve_logging(logging_cfg: LoggingConfig, root: Path) -> LoggingConfig:
     if logging_cfg.file and not Path(logging_cfg.file).is_absolute():
         logging_cfg.file = str((root / logging_cfg.file).resolve())
     return logging_cfg
+
+
+# =============================================================================
+# CV pipeline config (Component 3)
+# =============================================================================
+
+def _env_or(key: str, default: str) -> str:
+    return os.environ.get(key, default)
+
+
+@dataclass
+class CvConfig:
+    """Full configuration for the CV pipeline."""
+
+    production_profile: str = "vct_official"
+    fps: int = 6
+    working_height: int = 1080
+    frames_dir: Path = field(default_factory=lambda: Path("data/frames"))
+    scratch_dir: Path = field(default_factory=lambda: Path("data/scratch"))
+    db_path: Path = field(default_factory=lambda: Path("data/vantage.db"))
+    ffmpeg_bin: str = ""
+
+    @classmethod
+    def load(cls, path: Path | str | None = None) -> "CvConfig":
+        """Load ``cv`` config from a YAML file, falling back to defaults."""
+        defaults = cls()
+        data: dict = {}
+        if path is not None and Path(path).exists():
+            with open(path, "r", encoding="utf-8") as fh:
+                raw = yaml.safe_load(fh) or {}
+            data = raw.get("cv", {}) if isinstance(raw, dict) else {}
+
+        cfg = cls(
+            production_profile=str(data.get("production_profile", defaults.production_profile)),
+            fps=int(data.get("fps", defaults.fps)),
+            working_height=int(data.get("working_height", defaults.working_height)),
+            frames_dir=Path(data.get("frames_dir", str(defaults.frames_dir))),
+            scratch_dir=Path(data.get("scratch_dir", str(defaults.scratch_dir))),
+            db_path=Path(data.get("db_path", str(defaults.db_path))),
+            ffmpeg_bin=str(data.get("ffmpeg_bin", defaults.ffmpeg_bin)),
+        )
+        cfg.scratch_dir.mkdir(parents=True, exist_ok=True)
+        cfg.frames_dir.mkdir(parents=True, exist_ok=True)
+        cfg.resolve_ffmpeg()
+        return cfg
+
+    def resolve_ffmpeg(self) -> str:
+        """Return an absolute ffmpeg path, resolving from imageio if unset."""
+        if not self.ffmpeg_bin:
+            from imageio_ffmpeg import get_ffmpeg_exe
+            self.ffmpeg_bin = get_ffmpeg_exe()
+        if not Path(self.ffmpeg_bin).is_absolute():
+            self.ffmpeg_bin = str(Path(self.ffmpeg_bin).resolve())
+        return self.ffmpeg_bin

@@ -241,3 +241,126 @@ def side_from_vlr(cls: str) -> Side:
     if cls == "mod-ct":
         return Side.DEFENSE
     return Side.UNKNOWN
+
+
+# =============================================================================
+# CV pipeline models (Component 3)
+# =============================================================================
+
+CV_SOURCE = "cv"
+
+
+@dataclass
+class Vod:
+    """One map segment of a match VOD, harvested from a VLR match page."""
+
+    match_id: int
+    map_number: int
+    url: str
+    label: str = ""
+    video_id: str = ""
+    start_s: int = 0
+    duration_s: int = 0
+
+    def __post_init__(self) -> None:
+        if not self.video_id or not self.start_s:
+            vid, t = parse_youtube_url(self.url)
+            self.video_id = self.video_id or vid
+            self.start_s = self.start_s or t
+
+
+def parse_youtube_url(url: str) -> tuple[str, int]:
+    """Extract ``(video_id, start_s)`` from a youtu.be/YouTube watch URL."""
+    from urllib.parse import parse_qs, urlparse
+
+    parsed = urlparse(url)
+    if "youtu.be" in parsed.netloc:
+        vid = parsed.path.strip("/")
+    else:
+        q = parse_qs(parsed.query)
+        vid = q.get("v", [""])[0]
+    start = 0
+    if parsed.query:
+        q = parse_qs(parsed.query)
+        if "t" in q:
+            t = q["t"][0]
+            try:
+                start = int(t) if t.isdigit() else _parse_hms(t)
+            except ValueError:
+                start = 0
+    return vid, start
+
+
+def _parse_hms(s: str) -> int:
+    parts = s.split(":")
+    total = 0
+    for part in parts:
+        total = total * 60 + int(part)
+    return total
+
+
+@dataclass
+class PlayerState:
+    """A detected player marker on the minimap at a tick."""
+
+    match_id: int
+    map_number: int
+    round_number: int
+    ms_into_round: int
+    frame_index: int
+    x_px: float
+    y_px: float
+    team: str = "ally"
+    side: str = ""
+    visible: bool = True
+    agent: Optional[str] = None
+    track_id: Optional[int] = None
+    world_x: Optional[float] = None
+    world_y: Optional[float] = None
+
+
+@dataclass
+class UtilityState:
+    """A whitelisted utility icon detected on the minimap."""
+
+    match_id: int
+    map_number: int
+    round_number: int
+    ms_into_round: int
+    frame_index: int
+    kind: str
+    x_px: float
+    y_px: float
+    world_x: Optional[float] = None
+    world_y: Optional[float] = None
+
+
+@dataclass
+class SpikeState:
+    """Spike marker detection on the minimap."""
+
+    match_id: int
+    map_number: int
+    round_number: int
+    ms_into_round: int
+    frame_index: int
+    present: bool
+    x_px: Optional[float] = None
+    y_px: Optional[float] = None
+    world_x: Optional[float] = None
+    world_y: Optional[float] = None
+
+
+@dataclass
+class Tick:
+    """A single frame's worth of detections, ready to persist."""
+
+    match_id: int
+    map_number: int
+    round_number: int
+    ms_into_round: int
+    frame_index: int
+    pts_s: float
+    players: list[PlayerState] = field(default_factory=list)
+    utilities: list[UtilityState] = field(default_factory=list)
+    spike: Optional[SpikeState] = None

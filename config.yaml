@@ -64,3 +64,15 @@ rib:
   team_id: null    # (unused by classic endpoints; reserved)
   take: 50         # page size for the series listing
   fetch_details: true  # also call matches/{id}/details for per-round economy
+
+# =============================================================================
+# CV pipeline (Component 3). Local overrides for the mini-CV components.
+# =============================================================================
+cv:
+  production_profile: vct_official
+  fps: 6
+  working_height: 1080
+  frames_dir: data/frames
+  scratch_dir: data/scratch
+  db_path: data/vantage.db
+  ffmpeg_bin: ""

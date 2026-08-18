@@ -14,14 +14,19 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional
 
 from .models import (
+    CV_SOURCE,
     EventInfo,
     MapResult,
     Match,
     Player,
     PlayerMatchStats,
+    PlayerState,
     Round,
+    SpikeState,
     Team,
+    UtilityState,
     VetoEntry,
+    Vod,
 )
 
 log = logging.getLogger(__name__)
@@ -108,6 +113,101 @@ CREATE TABLE IF NOT EXISTS player_stats (
     operator_kills INTEGER, multikills TEXT, clutches TEXT, clutch_rounds TEXT,
     plants INTEGER, defuses INTEGER,
     PRIMARY KEY (source, match_id, map_number, player_id)
+);
+
+-- CV pipeline tables (Component 3)
+
+CREATE TABLE IF NOT EXISTS vods (
+    match_id   INTEGER NOT NULL,
+    map_number INTEGER NOT NULL,
+    video_id   TEXT NOT NULL,
+    url        TEXT NOT NULL,
+    start_s    INTEGER NOT NULL DEFAULT 0,
+    duration_s INTEGER NOT NULL DEFAULT 0,
+    label      TEXT NOT NULL DEFAULT '',
+    PRIMARY KEY (match_id, map_number)
+);
+
+CREATE TABLE IF NOT EXISTS tick_players (
+    source        TEXT NOT NULL DEFAULT 'cv',
+    match_id      INTEGER NOT NULL,
+    map_number    INTEGER NOT NULL,
+    round_number  INTEGER NOT NULL,
+    ms_into_round INTEGER NOT NULL,
+    frame_index   INTEGER NOT NULL,
+    row_idx       INTEGER NOT NULL DEFAULT 0,
+    pts_s         REAL NOT NULL,
+    team          TEXT NOT NULL DEFAULT 'ally',
+    side          TEXT NOT NULL DEFAULT '',
+    agent         TEXT,
+    track_id      INTEGER,
+    x_px          REAL NOT NULL,
+    y_px          REAL NOT NULL,
+    world_x       REAL,
+    world_y       REAL,
+    PRIMARY KEY (source, match_id, map_number, round_number, ms_into_round, frame_index, row_idx)
+);
+
+CREATE TABLE IF NOT EXISTS tick_utilities (
+    source        TEXT NOT NULL DEFAULT 'cv',
+    match_id      INTEGER NOT NULL,
+    map_number    INTEGER NOT NULL,
+    round_number  INTEGER NOT NULL,
+    ms_into_round INTEGER NOT NULL,
+    frame_index   INTEGER NOT NULL,
+    row_idx       INTEGER NOT NULL DEFAULT 0,
+    pts_s         REAL NOT NULL,
+    kind          TEXT NOT NULL,
+    x_px          REAL NOT NULL,
+    y_px          REAL NOT NULL,
+    world_x       REAL,
+    world_y       REAL,
+    PRIMARY KEY (source, match_id, map_number, round_number, ms_into_round, frame_index, row_idx)
+);
+
+CREATE TABLE IF NOT EXISTS tick_spike (
+    source        TEXT NOT NULL DEFAULT 'cv',
+    match_id      INTEGER NOT NULL,
+    map_number    INTEGER NOT NULL,
+    round_number  INTEGER NOT NULL,
+    ms_into_round INTEGER NOT NULL,
+    frame_index   INTEGER NOT NULL,
+    pts_s         REAL NOT NULL,
+    present       INTEGER NOT NULL,
+    x_px          REAL,
+    y_px          REAL,
+    world_x       REAL,
+    world_y       REAL,
+    PRIMARY KEY (source, match_id, map_number, round_number, ms_into_round, frame_index)
+);
+
+CREATE TABLE IF NOT EXISTS calibrations (
+    map_name       TEXT NOT NULL,
+    production     TEXT NOT NULL,
+    source         TEXT NOT NULL,
+    transform_json TEXT NOT NULL,
+    anchors_json   TEXT NOT NULL,
+    residual_mae   REAL,
+    created_at     TEXT NOT NULL DEFAULT (datetime('now')),
+    PRIMARY KEY (map_name, production, source)
+);
+
+CREATE TABLE IF NOT EXISTS labels (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    match_id      INTEGER NOT NULL,
+    map_number    INTEGER NOT NULL,
+    frame_index   INTEGER NOT NULL,
+    kind          TEXT NOT NULL,
+    side          TEXT,
+    agent         TEXT,
+    x_px          REAL NOT NULL,
+    y_px          REAL NOT NULL,
+    w_px          REAL,
+    h_px          REAL,
+    world_x       REAL,
+    world_y       REAL,
+    source        TEXT NOT NULL DEFAULT 'manual',
+    created_at    TEXT NOT NULL DEFAULT (datetime('now'))
 );
 """
 
@@ -319,6 +419,138 @@ class Repository:
         with open(out, "w", encoding="utf-8") as fh:
             json.dump(match.to_dict(), fh, indent=2, ensure_ascii=False)
         return out
+
+    # -- CV pipeline (Component 3) -------------------------------------------
+
+    def upsert_vod(self, vod: Vod) -> None:
+        self.conn.execute(
+            """
+            INSERT INTO vods (match_id, map_number, video_id, url, start_s, duration_s, label)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(match_id, map_number) DO UPDATE SET
+                video_id = excluded.video_id,
+                url = excluded.url,
+                start_s = excluded.start_s,
+                duration_s = excluded.duration_s,
+                label = excluded.label
+            """,
+            (vod.match_id, vod.map_number, vod.video_id, vod.url, vod.start_s,
+             vod.duration_s, vod.label),
+        )
+        self.conn.commit()
+
+    def save_vods(self, vods: Iterable[Vod]) -> int:
+        rows = list(vods)
+        for vod in rows:
+            self.upsert_vod(vod)
+        return len(rows)
+
+    def get_vods(self, match_id: int) -> list[Vod]:
+        cur = self.conn.execute(
+            "SELECT * FROM vods WHERE match_id = ? ORDER BY map_number", (match_id,)
+        )
+        return [self._vod_from_row(r) for r in cur.fetchall()]
+
+    @staticmethod
+    def _vod_from_row(row: sqlite3.Row) -> Vod:
+        return Vod(
+            match_id=row["match_id"],
+            map_number=row["map_number"],
+            url=row["url"],
+            video_id=row["video_id"],
+            start_s=row["start_s"],
+            duration_s=row["duration_s"],
+            label=row["label"],
+        )
+
+    def insert_tick(self, *, match_id: int, map_number: int, round_number: int,
+                    ms_into_round: int, frame_index: int, pts_s: float,
+                    players: Iterable[PlayerState],
+                    utilities: Iterable[UtilityState],
+                    spike: Optional[SpikeState] = None) -> None:
+        for i, p in enumerate(players):
+            self.conn.execute(
+                """
+                INSERT OR REPLACE INTO tick_players
+                (source, match_id, map_number, round_number, ms_into_round,
+                 frame_index, row_idx, pts_s, team, side, agent, track_id, x_px, y_px, world_x, world_y)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (CV_SOURCE, match_id, map_number, round_number, ms_into_round,
+                 frame_index, i, pts_s, p.team, p.side, p.agent, p.track_id, p.x_px,
+                 p.y_px, p.world_x, p.world_y),
+            )
+        for i, u in enumerate(utilities):
+            self.conn.execute(
+                """
+                INSERT OR REPLACE INTO tick_utilities
+                (source, match_id, map_number, round_number, ms_into_round,
+                 frame_index, row_idx, pts_s, kind, x_px, y_px, world_x, world_y)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (CV_SOURCE, match_id, map_number, round_number, ms_into_round,
+                 frame_index, i, pts_s, u.kind, u.x_px, u.y_px, u.world_x, u.world_y),
+            )
+        if spike is not None:
+            self.conn.execute(
+                """
+                INSERT OR REPLACE INTO tick_spike
+                (source, match_id, map_number, round_number, ms_into_round,
+                 frame_index, pts_s, present, x_px, y_px, world_x, world_y)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (CV_SOURCE, match_id, map_number, round_number, ms_into_round,
+                 frame_index, pts_s, int(spike.present), spike.x_px, spike.y_px,
+                 spike.world_x, spike.world_y),
+            )
+        self.conn.commit()
+
+    def count_ticks(self, match_id: int, map_number: int) -> tuple[int, int, int]:
+        cur = self.conn.execute(
+            "SELECT COUNT(*) n FROM tick_players WHERE match_id=? AND map_number=? AND source=?",
+            (match_id, map_number, CV_SOURCE),
+        )
+        players = cur.fetchone()["n"]
+        cur = self.conn.execute(
+            "SELECT COUNT(*) n FROM tick_utilities WHERE match_id=? AND map_number=? AND source=?",
+            (match_id, map_number, CV_SOURCE),
+        )
+        utilities = cur.fetchone()["n"]
+        cur = self.conn.execute(
+            "SELECT COUNT(*) n FROM tick_spike WHERE match_id=? AND map_number=? AND source=?",
+            (match_id, map_number, CV_SOURCE),
+        )
+        spike = cur.fetchone()["n"]
+        return players, utilities, spike
+
+    def upsert_label(self, *, match_id: int, map_number: int, frame_index: int,
+                     kind: str, x_px: float, y_px: float, w_px: float | None = None,
+                     h_px: float | None = None, source: str = "manual") -> None:
+        self.conn.execute(
+            """
+            DELETE FROM labels WHERE match_id=? AND map_number=?
+                AND frame_index=? AND kind=?
+            """,
+            (match_id, map_number, frame_index, kind),
+        )
+        self.conn.execute(
+            """
+            INSERT INTO labels
+                (match_id, map_number, frame_index, kind, x_px, y_px, w_px, h_px, source)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (match_id, map_number, frame_index, kind, x_px, y_px, w_px, h_px, source),
+        )
+        self.conn.commit()
+
+    def get_labels(self, match_id: int, map_number: int,
+                   kind: str | None = None) -> list[sqlite3.Row]:
+        sql = ("SELECT * FROM labels WHERE match_id=? AND map_number=?")
+        args: list = [match_id, map_number]
+        if kind:
+            sql += " AND kind=?"
+            args.append(kind)
+        return self.conn.execute(sql + " ORDER BY frame_index", args).fetchall()
 
     def close(self) -> None:
         self.conn.close()
