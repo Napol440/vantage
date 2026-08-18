@@ -555,7 +555,17 @@ class Repository:
     def close(self) -> None:
         self.conn.close()
 
+    def __enter__(self) -> "Repository":
+        return self
+
+    def __exit__(self, *exc) -> None:
+        self.close()
+
 
 def _match_team_ids(match: Match) -> Iterable[int]:
     yield match.team1_id
     yield match.team2_id
+
+
+# Alias for CV pipeline compatibility
+Storage = Repository
