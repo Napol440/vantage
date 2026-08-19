@@ -122,7 +122,7 @@ def _hsv_features(img_bgr: np.ndarray) -> np.ndarray:
     return np.array([ch, cs, cv_, rh, rs, rv, mh, ms, mv, sh, ss, sv], dtype=np.float32)
 
 
-def detect_markers_ml(patch_bgr: np.ndarray, profile: Profile, prob_threshold: float = 0.5) -> DetectionResult:
+def detect_markers_ml(patch_bgr: np.ndarray, profile: Profile, prob_threshold: float = 0.6) -> DetectionResult:
     """ML-enhanced player detection: broad HSV + sliding window, filtered by Random Forest.
 
     Phase 1: Find HSV-colored blob candidates (high precision).
