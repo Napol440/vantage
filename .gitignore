@@ -10,3 +10,17 @@ logs/
 *.log
 
 cookies.txt
+
+# Temp/test files
+*.html
+*.png
+*.jpg
+*.mp4
+*.mp4.part
+*.webm.part
+ml_data/
+models/
+twitch_data/
+*.npy
+yolo_raw_*.json
+*.onnx

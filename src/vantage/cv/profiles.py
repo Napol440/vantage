@@ -88,8 +88,18 @@ VCT_OFFICIAL = Profile(
     timer=TimerRegion(bbox=None, digits=2),
 )
 
+SLIGGY_720 = Profile(
+    name="sliggy_720",
+    ally=HsvRange(lower=(75, 80, 110), upper=(105, 140, 230)),
+    enemy=HsvRange(lower=(165, 40, 120), upper=(180, 170, 200)),
+    dot=DotParams(min_area=5, max_area=80, circularity=0.3, merge_dist_px=8.0),
+    minimap=MinimapGeometry(bbox=(23, 29, 256, 242)),
+    timer=TimerRegion(bbox=None, digits=2),
+)
+
 PROFILES: dict[str, Profile] = {
     VCT_OFFICIAL.name: VCT_OFFICIAL,
+    SLIGGY_720.name: SLIGGY_720,
 }
 
 
