@@ -72,7 +72,7 @@ _MINIMAP_MIN_H = 120       # minimap must be at least this tall
 _MINIMAP_MAX_H = 500       # minimap must be at most this tall
 # Calibration: typical minimap bbox from labeled ground truth (x, y, w, h)
 # Used as fallback when detection fails
-_CALIBRATION_BBOX = (38, 58, 387, 342)
+_CALIBRATION_BBOX = (23, 29, 256, 242)  # Sliggy 720p
 
 
 def localize_minimap(frame_bgr: np.ndarray,
