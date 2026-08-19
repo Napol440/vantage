@@ -1,0 +1,238 @@
+{
+  "1200": [
+    {"x": 75, "y": 32, "team": "ally"},
+    {"x": 36, "y": 88, "team": "ally"},
+    {"x": 38, "y": 100, "team": "ally"},
+    {"x": 43, "y": 98, "team": "ally"},
+    {"x": 200, "y": 100, "team": "ally"},
+    {"x": 66, "y": 156, "team": "enemy"},
+    {"x": 58, "y": 162, "team": "enemy"},
+    {"x": 64, "y": 165, "team": "enemy"},
+    {"x": 56, "y": 166, "team": "enemy"},
+    {"x": 178, "y": 179, "team": "enemy"}
+  ],
+  "1931": [
+    {"x": 37, "y": 96, "team": "ally"},
+    {"x": 43, "y": 99, "team": "ally"},
+    {"x": 37, "y": 102, "team": "ally"},
+    {"x": 73, "y": 47, "team": "ally"},
+    {"x": 199, "y": 100, "team": "ally"},
+    {"x": 56, "y": 159, "team": "enemy"},
+    {"x": 58, "y": 164, "team": "enemy"},
+    {"x": 59, "y": 165, "team": "enemy"},
+    {"x": 61, "y": 157, "team": "enemy"},
+    {"x": 183, "y": 175, "team": "enemy"}
+  ],
+  "3600": [
+    {"x": 66, "y": 96, "team": "ally"},
+    {"x": 94, "y": 67, "team": "ally"},
+    {"x": 111, "y": 69, "team": "ally"},
+    {"x": 201, "y": 150, "team": "ally"},
+    {"x": 87, "y": 164, "team": "enemy"}
+  ],
+  "5468": [
+    {"x": 117, "y": 89, "team": "ally"},
+    {"x": 149, "y": 55, "team": "ally"},
+    {"x": 114, "y": 196, "team": "ally"}
+  ],
+  "7200": [
+    {"x": 23, "y": 57, "team": "ally"},
+    {"x": 208, "y": 80, "team": "ally"},
+    {"x": 150, "y": 54, "team": "ally"},
+    {"x": 187, "y": 109, "team": "ally"},
+    {"x": 210, "y": 100, "team": "ally"},
+    {"x": 173, "y": 164, "team": "enemy"},
+    {"x": 166, "y": 181, "team": "enemy"},
+    {"x": 176, "y": 188, "team": "enemy"},
+    {"x": 158, "y": 194, "team": "enemy"},
+    {"x": 157, "y": 202, "team": "enemy"}
+  ],
+  "8314": [
+    {"x": 114, "y": 91, "team": "ally"},
+    {"x": 119, "y": 48, "team": "ally"},
+    {"x": 66, "y": 51, "team": "ally"},
+    {"x": 205, "y": 94, "team": "ally"},
+    {"x": 207, "y": 102, "team": "ally"},
+    {"x": 36, "y": 149, "team": "enemy"},
+    {"x": 50, "y": 156, "team": "enemy"},
+    {"x": 67, "y": 145, "team": "enemy"},
+    {"x": 102, "y": 183, "team": "enemy"},
+    {"x": 145, "y": 165, "team": "enemy"}
+  ],
+  "13555": [
+    {"x": 23, "y": 82, "team": "ally"},
+    {"x": 110, "y": 108, "team": "ally"},
+    {"x": 123, "y": 118, "team": "ally"},
+    {"x": 205, "y": 130, "team": "ally"},
+    {"x": 211, "y": 144, "team": "ally"},
+    {"x": 69, "y": 114, "team": "enemy"},
+    {"x": 81, "y": 99, "team": "enemy"},
+    {"x": 87, "y": 102, "team": "enemy"},
+    {"x": 71, "y": 138, "team": "enemy"},
+    {"x": 92, "y": 161, "team": "enemy"}
+  ],
+  "14400": [
+    {"x": 183, "y": 119, "team": "ally"},
+    {"x": 200, "y": 152, "team": "ally"},
+    {"x": 117, "y": 94, "team": "ally"},
+    {"x": 113, "y": 105, "team": "ally"},
+    {"x": 21, "y": 83, "team": "ally"},
+    {"x": 41, "y": 126, "team": "enemy"},
+    {"x": 93, "y": 99, "team": "enemy"},
+    {"x": 97, "y": 93, "team": "enemy"},
+    {"x": 100, "y": 99, "team": "enemy"},
+    {"x": 102, "y": 90, "team": "enemy"}
+  ],
+  "20108": [
+    {"x": 130, "y": 82, "team": "ally"},
+    {"x": 84, "y": 51, "team": "ally"},
+    {"x": 16, "y": 42, "team": "ally"},
+    {"x": 162, "y": 68, "team": "ally"},
+    {"x": 162, "y": 74, "team": "ally"},
+    {"x": 160, "y": 118, "team": "enemy"}
+  ],
+  "24128": [
+    {"x": 46, "y": 69, "team": "ally"},
+    {"x": 71, "y": 40, "team": "ally"},
+    {"x": 127, "y": 102, "team": "ally"},
+    {"x": 193, "y": 123, "team": "ally"},
+    {"x": 90, "y": 94, "team": "enemy"},
+    {"x": 38, "y": 80, "team": "enemy"},
+    {"x": 20, "y": 77, "team": "enemy"},
+    {"x": 19, "y": 71, "team": "enemy"}
+  ],
+  "26961": [
+    {"x": 81, "y": 70, "team": "ally"},
+    {"x": 107, "y": 49, "team": "ally"},
+    {"x": 213, "y": 140, "team": "ally"},
+    {"x": 222, "y": 139, "team": "ally"},
+    {"x": 192, "y": 172, "team": "enemy"},
+    {"x": 188, "y": 171, "team": "enemy"},
+    {"x": 187, "y": 171, "team": "enemy"},
+    {"x": 187, "y": 171, "team": "enemy"},
+    {"x": 189, "y": 169, "team": "enemy"}
+  ],
+  "28800": [
+    {"x": 128, "y": 29, "team": "ally"},
+    {"x": 129, "y": 35, "team": "ally"},
+    {"x": 131, "y": 27, "team": "ally"},
+    {"x": 159, "y": 36, "team": "ally"},
+    {"x": 142, "y": 48, "team": "ally"},
+    {"x": 109, "y": 197, "team": "enemy"},
+    {"x": 123, "y": 201, "team": "enemy"},
+    {"x": 124, "y": 209, "team": "enemy"},
+    {"x": 133, "y": 199, "team": "enemy"},
+    {"x": 114, "y": 221, "team": "enemy"}
+  ],
+  "36155": [
+    {"x": 98, "y": 72, "team": "ally"},
+    {"x": 118, "y": 72, "team": "ally"},
+    {"x": 134, "y": 109, "team": "ally"},
+    {"x": 235, "y": 112, "team": "ally"},
+    {"x": 196, "y": 165, "team": "enemy"},
+    {"x": 195, "y": 152, "team": "enemy"},
+    {"x": 211, "y": 150, "team": "enemy"},
+    {"x": 228, "y": 124, "team": "enemy"},
+    {"x": 115, "y": 159, "team": "enemy"}
+  ],
+  "38677": [
+    {"x": 124, "y": 99, "team": "ally"},
+    {"x": 187, "y": 61, "team": "ally"},
+    {"x": 211, "y": 106, "team": "ally"},
+    {"x": 212, "y": 126, "team": "ally"}
+  ],
+  "42760": [
+    {"x": 151, "y": 52, "team": "ally"},
+    {"x": 36, "y": 42, "team": "ally"},
+    {"x": 204, "y": 102, "team": "ally"},
+    {"x": 188, "y": 113, "team": "ally"},
+    {"x": 71, "y": 56, "team": "ally"},
+    {"x": 24, "y": 95, "team": "enemy"},
+    {"x": 32, "y": 95, "team": "enemy"},
+    {"x": 17, "y": 84, "team": "enemy"},
+    {"x": 13, "y": 71, "team": "enemy"},
+    {"x": 27, "y": 93, "team": "enemy"}
+  ],
+  "43200": [
+    {"x": 43, "y": 95, "team": "enemy"},
+    {"x": 43, "y": 76, "team": "enemy"},
+    {"x": 20, "y": 42, "team": "enemy"},
+    {"x": 62, "y": 46, "team": "ally"},
+    {"x": 111, "y": 33, "team": "ally"},
+    {"x": 133, "y": 26, "team": "ally"},
+    {"x": 131, "y": 48, "team": "ally"},
+    {"x": 148, "y": 52, "team": "ally"}
+  ],
+  "46806": [
+    {"x": 30, "y": 99, "team": "ally"},
+    {"x": 50, "y": 89, "team": "ally"},
+    {"x": 93, "y": 74, "team": "ally"},
+    {"x": 211, "y": 113, "team": "ally"},
+    {"x": 213, "y": 98, "team": "ally"},
+    {"x": 118, "y": 159, "team": "enemy"},
+    {"x": 122, "y": 160, "team": "enemy"},
+    {"x": 124, "y": 159, "team": "enemy"},
+    {"x": 127, "y": 158, "team": "enemy"},
+    {"x": 183, "y": 175, "team": "enemy"}
+  ],
+  "51417": [
+    {"x": 66, "y": 58, "team": "ally"},
+    {"x": 120, "y": 51, "team": "ally"},
+    {"x": 185, "y": 108, "team": "ally"},
+    {"x": 192, "y": 122, "team": "ally"},
+    {"x": 232, "y": 129, "team": "ally"},
+    {"x": 150, "y": 192, "team": "enemy"},
+    {"x": 180, "y": 186, "team": "enemy"},
+    {"x": 181, "y": 178, "team": "enemy"},
+    {"x": 182, "y": 173, "team": "enemy"}
+  ],
+  "54600": [
+    {"x": 125, "y": 106, "team": "ally"},
+    {"x": 132, "y": 123, "team": "ally"},
+    {"x": 131, "y": 129, "team": "ally"},
+    {"x": 183, "y": 116, "team": "ally"},
+    {"x": 225, "y": 129, "team": "ally"}
+  ],
+  "61563": [
+    {"x": 42, "y": 55, "team": "ally"},
+    {"x": 99, "y": 32, "team": "ally"},
+    {"x": 191, "y": 109, "team": "ally"},
+    {"x": 223, "y": 131, "team": "ally"},
+    {"x": 204, "y": 140, "team": "ally"},
+    {"x": 190, "y": 169, "team": "enemy"},
+    {"x": 42, "y": 104, "team": "enemy"},
+    {"x": 192, "y": 164, "team": "enemy"},
+    {"x": 192, "y": 162, "team": "enemy"},
+    {"x": 193, "y": 157, "team": "enemy"}
+  ],
+  "65624": [
+    {"x": 150, "y": 117, "team": "ally"},
+    {"x": 201, "y": 81, "team": "ally"},
+    {"x": 216, "y": 120, "team": "ally"},
+    {"x": 211, "y": 155, "team": "ally"},
+    {"x": 174, "y": 183, "team": "ally"}
+  ],
+  "69311": [
+    {"x": 72, "y": 22, "team": "ally"},
+    {"x": 90, "y": 36, "team": "ally"},
+    {"x": 68, "y": 51, "team": "ally"},
+    {"x": 73, "y": 57, "team": "ally"},
+    {"x": 193, "y": 72, "team": "ally"},
+    {"x": 90, "y": 93, "team": "enemy"},
+    {"x": 47, "y": 131, "team": "enemy"},
+    {"x": 42, "y": 79, "team": "enemy"},
+    {"x": 18, "y": 62, "team": "enemy"},
+    {"x": 15, "y": 54, "team": "enemy"}
+  ],
+  "70000": [
+    {"x": 39, "y": 54, "team": "ally"},
+    {"x": 58, "y": 47, "team": "ally"},
+    {"x": 72, "y": 62, "team": "ally"},
+    {"x": 77, "y": 18, "team": "ally"},
+    {"x": 95, "y": 29, "team": "ally"},
+    {"x": 100, "y": 89, "team": "enemy"},
+    {"x": 17, "y": 74, "team": "enemy"},
+    {"x": 47, "y": 85, "team": "enemy"},
+    {"x": 29, "y": 132, "team": "enemy"}
+  ]
+}
